@@ -7,15 +7,12 @@ var customersAppModule = angular.module("customersApp", []);
 customersAppModule.factory("customerFactory", function() {
     // An array with objects as elements to be passed to the controller
     var customers = [
-        {name: "Maria", date: "2015-07-18"},
         {name: "Jed", date: "2015-07-19"},
         {name: "Linda", date: "2015-07-20"},
         {name: "Fred", date: "2015-07-21"},
+        {name: "Maria", date: "2015-07-18"},
         {name: "Keiko", date: "2015-07-22"}
     ];
-
-    // Reverse order of the array
-    customers.reverse();
 
     var factory = {};
 
@@ -33,7 +30,15 @@ customersAppModule.factory("customerFactory", function() {
 customersAppModule.controller("customersController", function($scope, customerFactory) {
 
     // Initalize an empty array so $scope.customers maintains a consistent data type
+
+    // Reset array to empty
     $scope.customers = [];
+
+    // Reset error to empty string
+    $scope.error = "";
+
+    // Reset new customer to an empty string
+    $scope.newCustomer = "";
 
     // Run the "getcustomers" method and set "$scope" "data" in the callback
     customerFactory.getcustomers(function(data) {
@@ -43,7 +48,25 @@ customersAppModule.controller("customersController", function($scope, customerFa
     // This "$scope.addCustomer()" method executes when the
     // input element, that is inside the 'ng-controller="customersController"' directive,
     // with the 'ng-click="addCustomer()"' directive gets clicked
+
+
+
     $scope.addCustomer = function() {
+
+
+        if($scope.newCustomer.length === 0) {
+            $scope.error = "Name cannot be blank.";
+        }
+
+        var duplicate_found = false;
+
+        for(var i in $scope.customers) {
+            if($scope.newCustomer.name == $scope.customers[i].name) {
+                duplicate_found = true;
+
+                $scope.error = "There is already a customer with that name.";
+            }
+        }
 
         // get date
         var date = new Date;
@@ -69,18 +92,34 @@ customersAppModule.controller("customersController", function($scope, customerFa
             dayOfMonth = "0" + dayOfMonth;
         }
 
-        // Add new date to the an added customer
-        $scope.newCustomer.date = year + "-" + month + "-" + dayOfMonth;
+
 
         // Push the "newCustomer" form values into the
         // "customers" array as an object of "name" and "date"
         // property name and value pairs as the first element using
         // "unshift" and increment every other array element up by one
-        $scope.customers.unshift($scope.newCustomer);
+
+        if(!duplicate_found && $scope.newCustomer.length != 0) {
+
+            // Add new date to the an added customer
+            $scope.newCustomer.date = year + "-" + month + "-" + dayOfMonth;
+
+            $scope.customers.unshift($scope.newCustomer);
+
+
+        }
 
         // Clears all items from the "newCustomer" object
         // to add more later
         $scope.newCustomer = {};
     };
+
+    $scope.removeCustomer = function(customer) {
+        $scope.customers.splice($scope.customers.indexOf(customer), 1);
+    };
+
+
+
+
 
 });

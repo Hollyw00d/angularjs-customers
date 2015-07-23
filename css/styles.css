@@ -60,4 +60,8 @@ body {
     padding: 5px;
 }
 
+.error {
+    color: red;
+}
+
 
